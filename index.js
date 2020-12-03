@@ -1,15 +1,18 @@
 let app = require("express")();
 let server = require("http").createServer(app);
-let io = require("socket.io")(server, {
-  cors: {
-    origin: "http://localhost:3001",
-    credentials: true,
-  },
-});
+let io = require("socket.io")(server);
+
+const rooms = ["sleepy", "Gas", "Offline"];
 
 io.on("connection", (socket) => {
   // sending to the client in Admin Namespace
-  socket.emit("welcome", "Hello and Welcome to the Ghost ");
+
+  const welcomeMessage = `Hello and Welcome to the Ghost. Here are the rules:
+   1) No Cursing  
+   2) No Porn 
+  `;
+
+  socket.emit("welcome", "Hello and Welcome to the Ghost.");
 
   socket.on("disconnect", function () {
     io.emit("users-changed", { user: socket.username, event: "left" });
@@ -34,6 +37,32 @@ io.on("connection", (socket) => {
       user: socket.username,
       createdAt: new Date(),
     });
+  });
+
+  //
+  socket.on("getRoom", () => {
+    socket.emit("room", socket.adapter.rooms);
+  });
+
+  //
+  socket.on("joinRoom", (room) => {
+    if (lobbyAdmin.includes(room)) {
+      socket.join(room);
+      console.log(`Client ${socket.username} has joined ${room}`);
+      return socket.emit("success", "You have successfully Join the room");
+    } else {
+      return socket.emit("err", "ERROR, Room not found " + room);
+    }
+  });
+
+  // Leaving rooms
+  socket.on("leaveRoom", (room) => {
+    socket.leave(room);
+    socket.emit(
+      "leave-room",
+      "Client: " + socket.username + " has left: " + room
+    );
+    console.log(`Client: ${socket.username} has left ${room}`);
   });
 });
 
