@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
 
   //
   socket.on("getRoom", () => {
-    socket.emit("room", socket.adapter.rooms);
+    socket.emit("room", rooms);
   });
 
   //
