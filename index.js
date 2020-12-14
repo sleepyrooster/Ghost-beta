@@ -2,7 +2,11 @@ let app = require("express")();
 let server = require("http").createServer(app);
 let io = require("socket.io")(server);
 
-const rooms = ["sleepy", "Gas", "Offline"];
+const lobbyAdmin = [
+  { name: "sleepy", createdAt: new Date(), id: "Room_1" },
+  { name: "Gas", createdAt: new Date(), id: "Room_2" },
+  { name: "offline", createdAt: new Date(), id: "Room_3" },
+];
 
 io.on("connection", (socket) => {
   // sending to the client in Admin Namespace
@@ -41,7 +45,7 @@ io.on("connection", (socket) => {
 
   //
   socket.on("getRoom", () => {
-    socket.emit("room", rooms);
+    socket.emit("room", lobbyAdmin);
   });
 
   //
